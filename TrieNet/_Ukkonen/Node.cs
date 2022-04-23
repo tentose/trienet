@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Gma.DataStructures.StringSearch
 {
-    
-    
+
+    [DataContract]
     internal class Node<T>
     {
+        [DataMember()]
         private readonly IDictionary<char, Edge<T>> _edges;
+
+        [DataMember()]
         private readonly HashSet<T> _data;
 
         public Node()
@@ -56,6 +60,7 @@ namespace Gma.DataStructures.StringSearch
             return result;
         }
 
+        [DataMember()]
         public Node<T> Suffix { get; set; }
     }
 }

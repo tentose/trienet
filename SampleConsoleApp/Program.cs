@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Xml;
 using Gma.DataStructures.StringSearch;
 
 namespace Gma.DataStructures.StringSearch.SampleConsoleApp
@@ -12,7 +14,8 @@ namespace Gma.DataStructures.StringSearch.SampleConsoleApp
     {
         private static void Main(string[] args)
         {
-            var trie = new SuffixTrie<int>(3);
+            //var trie = new SuffixTrie<int>(3);
+            var trie = new UkkonenTrie<int>(3);
             //You can replace it with other trie data structures too 
             //ITrie<int> trie = new Trie<int>();
             //ITrie<int> trie = new PatriciaSuffixTrie<int>(3);
@@ -23,15 +26,45 @@ namespace Gma.DataStructures.StringSearch.SampleConsoleApp
                 //Build-up
                 BuildUp("sample.txt", trie);
                 //Look-up
-                LookUp("overs", trie);
+                LookUp("over", trie);
                 LookUp("porta", trie);
                 LookUp("supercalifragilisticexpialidocious", trie);
+
+                var serialized = Serialize(trie);
+                Console.WriteLine($"Serialized length: {serialized.Length}");
+
+                var deserializedObj = Deserialize<UkkonenTrie<int>>(serialized);
+                LookUp("over", deserializedObj);
+                LookUp("porta", deserializedObj);
+                LookUp("supercalifragilisticexpialidocious", deserializedObj);
             }
             catch (IOException ioException) { Console.WriteLine("Error: {0}", ioException.Message);}
             catch (UnauthorizedAccessException unauthorizedAccessException) { Console.WriteLine("Error: {0}", unauthorizedAccessException.Message);}
 
             Console.WriteLine("-------------Press any key to quit--------------");
             Console.ReadKey();
+        }
+
+        public static string Serialize(object obj)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            using (StreamReader reader = new StreamReader(memoryStream))
+            {
+                DataContractSerializer serializer = new DataContractSerializer(obj.GetType(), null, 0x7FFF, false, true, null);
+                serializer.WriteObject(memoryStream, obj);
+                memoryStream.Position = 0;
+                return reader.ReadToEnd();
+            }
+        }
+
+        public static T Deserialize<T>(string rawXml)
+        {
+            using (XmlReader reader = XmlReader.Create(new StringReader(rawXml)))
+            {
+                DataContractSerializer formatter0 =
+                    new DataContractSerializer(typeof(T));
+                return (T)formatter0.ReadObject(reader);
+            }
         }
 
         private static void BuildUp(string fileName, ITrie<int> trie)

@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace Gma.DataStructures.StringSearch
 {
+    [DataContract]
     public class UkkonenTrie<T> : ITrie<T>
     {
+        [DataMember]
         private readonly int _minSuffixLength;
 
         //The root of the suffix tree
+        [DataMember]
         private readonly Node<T> _root;
 
         //The last leaf that was added during the update operation
+        [DataMember]
         private Node<T> _activeLeaf;
 
         public UkkonenTrie() : this(0)
